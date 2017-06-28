@@ -32,6 +32,18 @@ pub struct ReaderBuilder {
     builder: Box<CoreReaderBuilder>,
 }
 
+pub enum Trim {
+    None,
+    Headers,
+    /// Hints that destructuring should not be exhaustive.
+    ///
+    /// This enum may grow additional variants, so this makes sure clients
+    /// don't count on exhaustive matching. (Otherwise, adding a new variant
+    /// could break existing code.)
+    #[doc(hidden)]
+    __Nonexhaustive,
+}
+
 impl Default for ReaderBuilder {
     fn default() -> ReaderBuilder {
         ReaderBuilder {
