@@ -32,6 +32,7 @@ pub struct ReaderBuilder {
     builder: Box<CoreReaderBuilder>,
 }
 
+#[derive(Debug)]
 pub enum Trim {
     None,
     Headers,
