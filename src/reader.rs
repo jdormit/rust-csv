@@ -24,6 +24,7 @@ pub struct ReaderBuilder {
     capacity: usize,
     flexible: bool,
     has_headers: bool,
+    trim: Trim,
     /// The underlying CSV parser builder.
     ///
     /// We explicitly put this on the heap because CoreReaderBuilder embeds an
@@ -51,6 +52,7 @@ impl Default for ReaderBuilder {
             capacity: 8 * (1<<10),
             flexible: false,
             has_headers: true,
+            trim: Trim::None,
             builder: Box::new(CoreReaderBuilder::default()),
         }
     }
@@ -566,6 +568,11 @@ impl ReaderBuilder {
     /// This defaults to a reasonable setting.
     pub fn buffer_capacity(&mut self, capacity: usize) -> &mut ReaderBuilder {
         self.capacity = capacity;
+        self
+    }
+
+    pub fn trim(&mut self, trim: Trim) -> &mut ReaderBuilder {
+        self.trim = trim;
         self
     }
 
