@@ -189,7 +189,7 @@ pub use reader::{
     Reader, ReaderBuilder,
     DeserializeRecordsIntoIter, DeserializeRecordsIter,
     StringRecordsIntoIter, StringRecordsIter,
-    ByteRecordsIntoIter, ByteRecordsIter,
+    ByteRecordsIntoIter, ByteRecordsIter, Trim,
 };
 pub use string_record::{StringRecord, StringRecordIter};
 pub use writer::{Writer, WriterBuilder};

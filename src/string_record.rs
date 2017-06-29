@@ -615,6 +615,25 @@ impl StringRecord {
     pub fn into_byte_record(self) -> ByteRecord {
         self.0
     }
+    
+    /// Trims whitespace from a StringRecord
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use csv::StringRecord;
+    ///
+    /// let str_record = StringRecord::from(vec![" a ", " b ", " c "]);
+    /// let trimmed_str_record = StringRecord::from(vec!["a", "b", "c"]);
+    /// assert_eq!(str_record.trim(), trimmed_str_record);
+    /// ```
+    pub fn trim(self) -> StringRecord {
+        StringRecord::from(
+            self.iter()
+                .map(|string| string.trim())
+                .collect::<Vec<&str>>()
+        )
+    }
 }
 
 impl ops::Index<usize> for StringRecord {

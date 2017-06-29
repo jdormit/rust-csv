@@ -35,9 +35,11 @@ pub struct ReaderBuilder {
 
 /// Specify which fields (if any) leading and trailing whitespace should be
 /// trimmed from.
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub enum Trim {
+    /// Do not trim
     None,
+    /// Trim headers
     Headers,
     /// Hints that destructuring should not be exhaustive.
     ///
@@ -586,7 +588,7 @@ impl ReaderBuilder {
     /// use std::error::Error;
     /// use csv::{ReaderBuilder, Trim};
     ///
-    /// # fn main() { example().unwrap(); }
+    /// fn main() { example().unwrap(); }
     /// fn example() -> Result<(), Box<Error>> {
     ///     let data = "\
     ///city, country , pop
@@ -605,7 +607,7 @@ impl ReaderBuilder {
     ///         Err(From::from("expected at least one record but got none"))
     ///     }
     ///
-    ///     rdr = ReaderBuilder.new()
+    ///     rdr = ReaderBuilder::new()
     ///         .trim(Trim::Headers)
     ///         .from_reader(data.as_bytes());
     ///     assert_eq!(rdr.headers()?, vec!["city", "country", "pop"]);
@@ -752,6 +754,7 @@ struct ReaderState {
     seeked: bool,
     /// Whether EOF of the underlying reader has been reached or not.
     eof: bool,
+    trim: Trim,
 }
 
 /// Headers encapsulates any data associated with the headers of CSV data.
@@ -810,6 +813,7 @@ impl<R: io::Read> Reader<R> {
                 first: false,
                 seeked: false,
                 eof: false,
+                trim: builder.trim,
             },
         }
     }
@@ -1477,14 +1481,19 @@ impl<R: io::Read> Reader<R> {
         // If we have string headers, then get byte headers. But if we have
         // byte headers, then get the string headers (or a UTF-8 error).
         let (str_headers, byte_headers) = match headers {
-            Ok(string) => {
-                let bytes = string.clone().into_byte_record();
-                (Ok(string), bytes)
+            Ok(string_record) => {
+                let trimmed_record = match self.state.trim {
+                    Trim::None => string_record,
+                    Trim::Headers => string_record.trim(),
+                    _ => string_record,
+                };
+                let byte_record = trimmed_record.clone().into_byte_record();
+                (Ok(trimmed_record), byte_record)
             }
-            Err(bytes) => {
-                match StringRecord::from_byte_record(bytes.clone()) {
-                    Ok(str_headers) => (Ok(str_headers), bytes),
-                    Err(err) => (Err(err.utf8_error().clone()), bytes),
+            Err(byte_record) => {
+                match StringRecord::from_byte_record(byte_record.clone()) {
+                    Ok(str_headers) => (Ok(str_headers), byte_record),
+                    Err(err) => (Err(err.utf8_error().clone()), byte_record),
                 }
             }
         };
