@@ -588,7 +588,7 @@ impl ReaderBuilder {
     /// use std::error::Error;
     /// use csv::{ReaderBuilder, Trim};
     ///
-    /// fn main() { example().unwrap(); }
+    /// # fn main() { example().unwrap(); }
     /// fn example() -> Result<(), Box<Error>> {
     ///     let data = "\
     ///city, country , pop
@@ -606,8 +606,14 @@ impl ReaderBuilder {
     ///     } else {
     ///         Err(From::from("expected at least one record but got none"))
     ///     }
+    ///}
     ///
-    ///     rdr = ReaderBuilder::new()
+    /// fn example_two() -> Result<(), Box<Error>> {
+    ///     let data = "\
+    ///city, country , pop
+    ///Boston, United States , 4628910
+    ///";
+    ///     let mut rdr = ReaderBuilder::new()
     ///         .trim(Trim::Headers)
     ///         .from_reader(data.as_bytes());
     ///     assert_eq!(rdr.headers()?, vec!["city", "country", "pop"]);
