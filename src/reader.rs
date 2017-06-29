@@ -33,6 +33,8 @@ pub struct ReaderBuilder {
     builder: Box<CoreReaderBuilder>,
 }
 
+/// Specify which fields (if any) leading and trailing whitespace should be
+/// trimmed from.
 #[derive(Debug)]
 pub enum Trim {
     None,
@@ -571,6 +573,52 @@ impl ReaderBuilder {
         self
     }
 
+    /// Specify the type of whitespace trimming (if any) to apply while
+    /// parsing.  The default behavior is to include all leading and trailing
+    /// whitespace as part of the fields, but the parser can be instructed
+    /// to omit leading and trailing whitespace from header fields.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// extern crate csv;
+    ///
+    /// use std::error::Error;
+    /// use csv::{ReaderBuilder, Trim};
+    ///
+    /// # fn main() { example().unwrap(); }
+    /// fn example() -> Result<(), Box<Error>> {
+    ///     let data = "\
+    ///city, country , pop
+    ///Boston, United States , 4628910
+    ///";
+    ///     let mut rdr = ReaderBuilder::new()
+    ///         .trim(Trim::None)
+    ///         .from_reader(data.as_bytes());
+    ///     assert_eq!(rdr.headers()?, vec!["city", " country ", " pop"]);
+    ///
+    ///     if let Some(result) = rdr.records().next() {
+    ///         let record = result?;
+    ///         assert_eq!(record, vec!["Boston", " United States ", " 4628910"]);
+    ///         Ok(())
+    ///     } else {
+    ///         Err(From::from("expected at least one record but got none"))
+    ///     }
+    ///
+    ///     rdr = ReaderBuilder.new()
+    ///         .trim(Trim::Headers)
+    ///         .from_reader(data.as_bytes());
+    ///     assert_eq!(rdr.headers()?, vec!["city", "country", "pop"]);
+    ///
+    ///     if let Some(result) = rdr.records().next() {
+    ///         let record = result?;
+    ///         assert_eq!(record, vec!["Boston", " United States ", " 4628910"]);
+    ///         Ok(())
+    ///     } else {
+    ///         Err(From::from("expected at least one record but got none"))
+    ///     }
+    /// }
+    /// ```
     pub fn trim(&mut self, trim: Trim) -> &mut ReaderBuilder {
         self.trim = trim;
         self
